@@ -11,7 +11,9 @@
 *.cb
 *.cb2
 .*.lb
-*.pdf
+
+#不用同步pdf版的论文
+船岸连接论文(Latex版本).pdf
 
 ## Intermediate documents:
 *.dvi
