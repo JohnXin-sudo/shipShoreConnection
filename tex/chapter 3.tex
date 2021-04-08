@@ -1,9 +1,12 @@
 \chapter{船岸连接系统关键技术问题与分析}
 
-\section{船用岸电电源系统结构}
+\section{船用岸电电源系统结构与模型}
 
-综合对比目前各种己知的低压岸电变流系统拓扑结构，采用三相PWM整流和三相PWM逆变双全控系统是最理想的选择，
-也最符合岸电电源系统的实际需求其拓扑结构图如图\ref{fig:岸电电源变流系统}所示。
+\subsection{船舶岸电电源结构}
+
+岸电系统分为高压和低压两类，其中最关键的部分是岸电变频电源系统。岸电变频电源有不同的实现方案：1)高/低/高
+，2)高/高。对比已知的岸电电源的拓扑结构，三相PWM整流与三相PWM逆变拓扑结构是目前最好的选择之一，变频电源
+拓扑结构如图\ref{fig:岸电电源变流系统}所示。
 
 \begin{figure}[!htp]
 	\centering
@@ -12,9 +15,10 @@
 	\label{fig:岸电电源变流系统}
 \end{figure}
 
-\section{岸侧变流器系统模型与分析}
-
 \subsection{变流器整流侧模型}
+
+整流侧为四象限有源PWM整流，采用先进成熟的IGBT技术，具有网侧谐波小、功率因数大和四象限运行的优点，
+其拓扑结构如图\ref{fig:三相VSR拓扑结构图}所示。
 
 \begin{figure}[!htp]
 	\centering
@@ -23,45 +27,46 @@
 	\label{fig:三相VSR拓扑结构图}
 \end{figure}
 
+图\ref{fig:三相VSR拓扑结构图}中，$e_{k} \quad i_{k} \quad (k=u,v,w)$为网侧电压和电流，
+理想情况下为正弦波。$i_{dc},i_{L},L,R,C$分别为直流侧电流，负载电流，滤波电感电流，网侧等效损耗电阻和
+直流稳压电容。
+
+对于IGBT功率开关定义开关函数$s_{k}$：
 \begin{equation}
 	s_{k} =
 	\begin{cases}
 		1 \quad \text{上桥臂IGBT导通，下桥臂IGBT关断} \\
 		0 \quad \text{上桥臂IGBT关断，下桥臂IGBT导通} \\
 	\end{cases}
-	(k=a,b,c)
-	\label{equ:Sk}
+	(k=u,v,w)
+	\label{equ:SkR}
 \end{equation}
-
+根据基尔霍夫电压定律列写以下基本方程：
 \begin{equation}
-	L\frac{di_{u}}{dt}+Ri_{u}=e_{u}-(u_{uN}+u_{NO})
+	\begin{cases}
+		L\frac{di_{u}}{dt}+Ri_{u}=e_{u}-(u_{uN}+u_{NO})	\\
+		L\frac{di_{v}}{dt}+Ri_{v}=e_{v}-(u_{vN}+u_{NO})	\\
+		L\frac{di_{w}}{dt}+Ri_{w}=e_{w}-(u_{wN}+u_{NO})	\\
+	\end{cases}
+\end{equation}
+又因为$u_{kN}=u_{dc}s_{k} \quad (k=u,v,w)$，所以有：
+\begin{equation}
+	\begin{cases}
+		L\frac{di_{u}}{dt}+Ri_{u}=e_{u}-(u_{dc}s_{u}+u_{NO}) \\
+		L\frac{di_{v}}{dt}+Ri_{v}=e_{v}-(u_{dc}s_{v}+u_{NO}) \\
+		L\frac{di_{w}}{dt}+Ri_{w}=e_{w}-(u_{dc}s_{w}+u_{NO}) \\
+	\end{cases}
 	\label{equ:3-3}
-\end{equation}
-
-\begin{equation}
-	L\frac{di_{u}}{dt}+Ri_{u}=e_{u}-(u_{dc}s_{u}+u_{NO})
-\end{equation}
-同样的v，w相
-\begin{equation}
-	L\frac{di_{v}}{dt}+Ri_{v}=e_{v}-(u_{dc}s_{v}+u_{NO})
-	\label{equ:3-4}
-\end{equation}
-
-\begin{equation}
-	L\frac{di_{w}}{dt}+Ri_{w}=e_{w}-(u_{dc}s_{w}+u_{NO})
-	\label{equ:3-5}
 \end{equation}
 三相对称，所以有：
 \begin{equation}
-	e_{u}+e_{v}+e_{w}=0
+	\begin{cases}
+		e_{u}+e_{v}+e_{w}=0	\\
+		i_{u}+i_{v}+i_{w}=0 \\
+	\end{cases}
 	\label{equ:3-6}
 \end{equation}
-
-\begin{equation}
-	i_{u}+i_{v}+i_{w}=0 
-	\label{equ:3-7}
-\end{equation}
-将式(\ref{equ:3-6})式(\ref{equ:3-7})代入式(\ref{equ:3-3})~\~{}式(\ref{equ:3-5})中得：
+将式(\ref{equ:3-6})代入式(\ref{equ:3-3})中得：
 \begin{equation}
 	u_{NO}=-\frac{u_{dc}}{3} \left ( s_{u}+s_{v}+s_{w}  \right )
 \end{equation}
@@ -69,7 +74,7 @@
 \begin{equation}
 	i_{dc}=i_{u}s_{u}+i_{v}s_{w}+i_{w}s_{w}
 \end{equation}
-直流侧电容电流：
+由基尔霍夫电流定律，直流侧电容电流为：
 \begin{equation}
 	C\frac{du_{dc}}{dt}=i_{u}s_{u}+i_{v}s_{w}+i_{w}s_{w}-i_{L}
 \end{equation}
@@ -79,6 +84,7 @@
 
 \begin{equation}
 	\boldsymbol{\dot{X}}=\boldsymbol{AX}+\boldsymbol{BU}
+	\label{equ:VSR状态空间}
 \end{equation}
 上式中：
 \begin{equation}
@@ -100,24 +106,13 @@
 		0           & 0           & 0           & -\frac{1}{C}
 	\end{pmatrix}
 \end{equation}
-三相VSR的数学模型结构如图\ref{fig:三相VSR一般数学模型结构}所示：
 
-\begin{figure}[!htp]
-	\centering
-	\includegraphics[width=0.9\textwidth]{chapter3/VSR/三相VSR一般数学模型结构.pdf}
-	\caption{三相VSR一般数学模型结构}
-	\label{fig:三相VSR一般数学模型结构}
-\end{figure}
+至此我们已经得到了VSR在abc坐标系下的数学模型，模型的物理意义清晰，但是网侧为正弦量不利于控制系统的设计。
+我们可以利用坐标变换理论将abc坐标系下的模型转换为同步旋转dq坐标系下的模型，经变换后的网侧正弦量变为了
+直流量，从而方便控制系统的设计。
 
-前文对三相静止abc坐标系中的VSR一般数学模型进行了分析，此模型具有物理意义清晰、直观等特点。
-但在一般数学模型中，VSR网侧均为时变交流量，不利于控制系统设计。鉴于此，可以通过坐标变换将三相静止abc
-坐标系转换成以网侧电动势基波角频率同步旋转的dq坐标系。坐标变换后，三相交变量转化成同步旋转坐标系中的直流量，
-从而简化了控制系统的设计。
-
-为将三相静止abc坐标系转换成同步旋转dq坐标系，首先可将三相静止坐标系转换成两相静止$\alpha\beta$坐标系。
-设有通用矢量$\boldsymbol{X}$ ，
-其在$\alpha$、$\beta$轴上的投影为$x_{\alpha}$、$x_{\beta}$，在a、b、c轴上的投影为$x_{a}$、$x_{b}$、$x_{c}$，
-令a轴与α轴重合，则有：
+将abc坐标系的VSR模型转换为dq坐标系模型前，我们需要首先将abc坐标系转换为两相静止$\alpha\beta$坐标系。
+设有通用的三相交流矢量$\boldsymbol{X}$，我们使a轴与$\alpha$轴重合，则有。
 
 \begin{equation}
 	\begin{pmatrix}
@@ -137,24 +132,9 @@
 	\end{pmatrix}
 	\label{equ:abc2αβ}
 \end{equation}
-或
-\begin{equation}
-	\begin{pmatrix}
-		x_{a} \\
-		x_{b} \\
-		x_{c}
-	\end{pmatrix}
-	=
-	\begin{pmatrix}
-		1            & 0                    \\
-		-\frac{1}{2} & -\frac{\sqrt{3} }{2} \\
-		-\frac{1}{2} & \frac{\sqrt{3} }{2}
-	\end{pmatrix}
-	\begin{pmatrix}
-		x_{\alpha } \\
-		x_{\beta }
-	\end{pmatrix}
-\end{equation}
+其中，$x_{\alpha}$、$x_{\beta}$为$\boldsymbol{X}$在$\alpha$、$\beta$轴上的投影，
+$x_{a}$、$x_{b}$、$x_{c}$$\boldsymbol{X}$在a、b、c轴上的投影。
+
 对于三相VSR有：
 \begin{equation}
 	\begin{cases}
@@ -163,7 +143,7 @@
 		x_{j}\in  \{ e_{j},e_{j},s_{j} \} \quad(j=d,q)
 	\end{cases}
 \end{equation}
-化简，可得两相静止坐标系中三相 VSR 开关函数模型为：
+联立式(\ref{equ:abc2αβ})，式(\ref{equ:VSR状态空间})化简可得：
 \begin{equation}
 	\begin{cases}
 		C \frac{\mathrm{d} u_{\mathrm{dc}}}{\mathrm{d} t}=\frac{3}{2}\left(i_{\alpha} s_{\alpha}+i_{\beta} s_{\beta}\right)-i_{\mathrm{L}} \\
@@ -172,7 +152,7 @@
 	\end{cases}
 	\label{equ:3-17}
 \end{equation}
-两相静止坐标系到同步旋转坐标系的转换矩阵为：
+αβ坐标系到dq坐标系的转换矩阵为：
 \begin{equation}
 	\begin{pmatrix}
 		x_{\alpha } \\
@@ -188,8 +168,7 @@
 	\end{pmatrix}
 	\label{equ:αβ2dq变换公式}
 \end{equation}
-式中，$\varphi$为d轴与$\alpha$轴的夹角。将式(\ref{equ:αβ2dq变换公式})代入式(\ref{equ:3-17})，得到
-三相VSR在dq坐标系下的数学模型：
+其中，$\varphi$为d轴与$\alpha$轴的夹角。联立式(\ref{equ:αβ2dq变换公式})，式(\ref{equ:3-17})得：
 \begin{equation}
 	\begin{cases}
 		C \frac{\mathrm{d} u_{\mathrm{dc}}}{\mathrm{d} t}=\frac{3}{2}\left(i_{\mathrm{d}} s_{\mathrm{d}}+i_{\mathrm{q}} s_{\mathrm{q}}\right)-i_{\mathrm{L}} \\
@@ -198,7 +177,7 @@
 	\end{cases}
 	\label{equ:VSR dq数学模型}
 \end{equation}
-
+三相VSR dq数学模型的结构如图\ref{fig:三相VSR dq数学模型结构.pdf}所示：
 \begin{figure}[!htp]
 	\centering
 	\includegraphics[width=\textwidth]{chapter3/VSR/三相VSR dq数学模型结构.pdf}
@@ -208,13 +187,15 @@
 
 \subsection{变流器逆变侧模型}
 
+逆变侧采用PWM逆变，其拓扑结构如图\ref{fig:三相VSI拓扑结构图}所示。
+
 \begin{figure}[!htp]
 	\centering
 	\includegraphics[width=0.65\textwidth]{chapter3/VSI/VSI拓扑.pdf}
 	\caption{三相VSI拓扑结构图}
 	\label{fig:三相VSI拓扑结构图}
 \end{figure}
-同三相 VSR 一样，首先定义单极性二值逻辑开关函数$s_{k}$为：
+对于IGBT功率开关定义开关函数$s_j$：
 \begin{equation}
 	s_{j} =
 	\begin{cases}
@@ -222,9 +203,9 @@
 		0 \quad \text{上桥臂IGBT关断，下桥臂IGBT导通} \\
 	\end{cases}
 	(j=a,b,c)
-	\label{equ:Sk}
+	\label{equ:SkI}
 \end{equation}
-根据基尔霍夫电压定律建立三相VSI回路方程：
+根据基尔霍夫电压定律列写回路方程：
 \begin{equation}
 	\begin{cases}
 		L \frac{d i_{La}}{dt}+R i_{La}=e_{a}-u_{oa}-u_{ON} \\
@@ -244,7 +225,11 @@
 \end{equation}
 考虑到三相对称性，则有：
 \begin{equation}
-	i_{La}+i_{Lb}+i_{Lc}=0 \quad u_{oa}+u_{ob}+u_{oc}=0 \label{equ:3-23}
+	\begin{cases}
+		i_{La}+i_{Lb}+i_{Lc}=0 \\
+		u_{oa}+u_{ob}+u_{oc}=0 \\
+	\end{cases}
+	\label{equ:3-23}
 \end{equation}
 联立式(\ref{equ:VSI model1})和式(\ref{equ:3-23})得：
 \begin{equation}
@@ -293,8 +278,8 @@
 	\end{pmatrix}^{T}
 \end{equation}
 
-与整流侧类似，为了得到三相VSI dq数学模型，新疆abc静止坐标系转换为两相静止$\alpha\beta$坐标系。
-结合式(\ref{equ:abc2αβ})与式(\ref{equ:VSI model1})得到三相VSI$\alpha\beta$模型：
+与整流侧类似，为了得到三相VSI的dq数学模型，可以先将abc坐标系转换为$\alpha\beta$坐标系。
+联立式(\ref{equ:abc2αβ})和式(\ref{equ:VSI model1})得到三相VSI的$\alpha\beta$数学模型：
 \begin{equation}
 	\begin{cases}
 		L\frac{di_{L\alpha}}{dt}=-Ri_{L\alpha}+e_{\alpha}-u_{o\alpha} \\
@@ -312,7 +297,7 @@
 \end{equation}
 
 为使两相静止$\alpha\beta$坐标系转化为同步旋转dq坐标系，将式(\ref{equ:αβ2dq变换公式})代入
-式(\ref{equ:VSI αβ model1})和式(\ref{equ:VSI αβ model2})中，整理得到VSI dq模型：
+式(\ref{equ:VSI αβ model1})和式(\ref{equ:VSI αβ model2})中，整理得到VSI的dq模型：
 \begin{equation}
 	\begin{cases}
 		L\frac{di_{Ld}}{dt}=-Ri_{Ld}+e_{d}+\omega Li_{Lq}-u_{od} \\
@@ -329,7 +314,7 @@
 	\label{equ:VSI dq model2}
 \end{equation}
 
-三相VSI dq模型结构，如图\ref{fig:两相同步旋转dq坐标系中三相VSI模型结构图}所示。
+三相VSI在dq坐标系下的数学模型结构，如图\ref{fig:两相同步旋转dq坐标系中三相VSI模型结构图}所示。
 
 \begin{figure}[!htp]
 	\centering
@@ -338,21 +323,14 @@
 	\label{fig:两相同步旋转dq坐标系中三相VSI模型结构图}
 \end{figure}
 
-
-\subsection{岸侧变压器模型}
-
-
-
-
-\subsection{岸侧滤波器模型}
-
-
 \section{岸侧变流器系统控制策略}
 
 电压电流瞬时值双闭环控制的系统框图，它的原理为：采样岸电电源的输出电压U0，经过信号调理获得电压反馈信号Vfed，
 并和电压给定值Vref相比较得到偏差信号ev。然后送入电压调节器，它的输出值即是电流内环反馈的参考
 值Iref，再和电流反馈值If相比较获得误差信号ei。最后经过电流调节器得到控制信号Vc并输出给DSP进行运算处理，
 从而对SPWM驱动波形进行调制。
+
+电流内环，电压外环双闭环控制策略。
 
 \begin{figure}[!htp]
 	\centering
@@ -363,7 +341,52 @@
 
 \subsection{变流器整流侧控制方法}
 
-电流内环，电压外环双闭环控制策略。
+\begin{equation}
+	\begin{pmatrix}
+		e_d \\ eq
+	\end{pmatrix}=
+	\begin{pmatrix}
+		Lp+R & -\omega L \\ 
+		\omega L & Lp+R 
+	\end{pmatrix}
+	\begin{pmatrix}
+		i_d \\ i_q
+	\end{pmatrix}+
+	\begin{pmatrix}
+		u_d \\ u_q
+	\end{pmatrix}
+\end{equation}
+
+\begin{equation}
+	\frac{3}{2}(u_di_d+u_qi_q)=u_{dc}i_{dc}
+\end{equation}
+
+\begin{equation}
+	\begin{cases}
+		u_d = - \left( K_{iP}+\frac{K_{iI}}{s} \right) (i_{d}^{*}-i_d) +\omega Li_q+e_d \\
+		u_q = - \left( K_{iP}+\frac{K_{iI}}{s} \right) (i_{q}^{*}-i_q) +\omega Li_d+e_q	
+	\end{cases}
+\end{equation}
+
+\begin{equation}
+	L p\begin{pmatrix}
+		i_{\mathrm{d}} \\
+		i_{\mathrm{q}}
+		\end{pmatrix}=
+		\begin{pmatrix}
+		-R+K_{i \mathrm{P}}+\frac{K_{i \mathrm{I}}}{s} & 0 \\
+		0 & -R+K_{i \mathrm{P}}+\frac{K_{i \mathrm{I}}}{s}
+		\end{pmatrix}
+		\begin{pmatrix}
+		i_{\mathrm{d}} \\
+		i_{\mathrm{q}}
+		\end{pmatrix}-
+		\left(K_{\mathrm{iP}}+\frac{K_{i \mathrm{I}}}{s}\right)
+		\begin{pmatrix}
+		i_{\mathrm{d}}^{*} \\
+		i_{\mathrm{q}}^{*}
+		\end{pmatrix}
+\end{equation}
 
 \begin{figure}[!htp]
 	\centering
@@ -382,8 +405,8 @@
 \begin{figure}[!htp]
 	\centering
 	\includegraphics[width=\textwidth]{chapter3/VSR/无ed扰动时的id电流内环结构.pdf}
-	\caption{无ed扰动时的id电流内环结构.pdf}
-	\label{fig:无ed扰动时的id电流内环结构.pdf}
+	\caption{无ed扰动时的id电流内环结构}
+	\label{fig:无ed扰动时的id电流内环结构}
 \end{figure}
 
 \begin{figure}[!htp]
@@ -432,8 +455,6 @@
 	\label{fig:Uod电压外环简化结构}
 \end{figure}
 
-\section{岸电电力系统仿真}
-
 搭建如图\ref{fig:低压岸电系统仿真示意图}所示的岸电仿真模型。
 
 \begin{figure}[!htp]
@@ -442,20 +463,6 @@
 	\caption{一种低压岸电系统仿真示意图}
 	\label{fig:低压岸电系统仿真示意图}
 \end{figure}
-
-\section{船舶电力系统模型与分析}
-
-\subsection{船舶柴油发电机调速模型}
-
-\subsection{同步发电机模型}
-
-\subsection{发电机励磁系统模型}
-
-\subsection{船舶负载模型}
-
-\section{船舶电力系统仿真}
-
-
 
 \section{系统压降解决方案}
 
