@@ -13,7 +13,7 @@
 	},
 	"training": {
 		"epochs": 3,
-		"batch_size": 32
+		"batch_size": 64
 	},
 	"model": {
 		"loss": "mse",
@@ -22,7 +22,7 @@
 		"layers": [
 			{
 				"type": "lstm",
-				"neurons": 50,
+				"neurons": 100,
 				"input_timesteps": 49,
 				"input_dim": 4,
 				"return_seq": true
@@ -30,11 +30,6 @@
 			{
 				"type": "dropout",
 				"rate": 0.2
-			},
-			{
-				"type": "lstm",
-				"neurons": 50,
-				"return_seq": true
 			},
 			{
 				"type": "lstm",

@@ -99,13 +99,13 @@ class DataLoader():
 
         normalised_data = scaler.fit_transform(window_data)
         # print("normalised_data:")
-        print(normalised_data,type(normalised_data),np.shape(normalised_data))
+        # print(normalised_data,type(normalised_data),np.shape(normalised_data))
         return np.array(normalised_data) # 3维
 
     def inverse_windows(self, window_data):
         inverse_data = scaler.inverse_transform(window_data)
         # print("inverse_data:")
-        print(inverse_data,type(inverse_data),np.shape(inverse_data))
+        # print(inverse_data,type(inverse_data),np.shape(inverse_data))
         return np.array(inverse_data)
 
 
