@@ -126,3 +126,10 @@ df.to_csv(save_fname)
 # 绘图
 plot_results(predictions, y_test)
 plot(errors,"errors")
+
+
+# 结果
+
+## 目前3层LSTM，100个神经元是最佳预测结果
+
+## 目前3层LSTM，300个神经元也不错
