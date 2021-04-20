@@ -50,7 +50,8 @@ data = DataLoader(
 )
 
 model = Model()
-model.load_model("saved_models\\50_100_neurons_3layers.h5")
+model.load_model("saved_models\\LSTM-UKF.h5")
+
 
 x_train, y_train = data.get_train_data(
     seq_len=configs['data']['sequence_length'], 
@@ -84,6 +85,11 @@ predictions = model.predict_point_by_point(x_test)
 time.stop()
 print("预测结束...")
 
+test = x_test[0].reshape((-1,49,4))
+print("单步预测时间：")
+time.start()
+preone = model.model.predict(test) 
+time.stop()
 
 
 # 数据去正规化
