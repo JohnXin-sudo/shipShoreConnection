@@ -50,7 +50,7 @@ data = DataLoader(
 )
 
 model = Model()
-model.load_model("saved_models\\LSTM-UKF.h5")
+model.load_model("saved_models\\300-3.h5")
 
 
 x_train, y_train = data.get_train_data(
